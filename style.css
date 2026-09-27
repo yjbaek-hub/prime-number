@@ -68,9 +68,21 @@ h1 {
 }
 
 .subtitle {
-  margin: 0 0 28px;
+  margin: 0 0 8px;
   color: var(--muted);
   font-size: 14px;
+}
+
+.python-badge {
+  margin: 0 0 20px;
+  color: var(--hana-deep);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+button:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
 }
 
 #prime-form {

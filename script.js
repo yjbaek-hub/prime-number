@@ -1,22 +1,5 @@
-function isPrime(n) {
-  if (n < 2) return false;
-  for (let i = 2; i * i <= n; i++) {
-    if (n % i === 0) return false;
-  }
-  return true;
-}
-
 function isInteger(value) {
   return /^-?\d+$/.test(value.trim());
-}
-
-function getDivisors(n) {
-  const abs = Math.abs(n);
-  const divisors = [];
-  for (let i = 1; i <= abs; i++) {
-    if (abs % i === 0) divisors.push(i);
-  }
-  return divisors;
 }
 
 function showResult(message, className) {
@@ -25,7 +8,23 @@ function showResult(message, className) {
   result.className = "result " + className;
 }
 
-document.getElementById("prime-form").addEventListener("submit", function (e) {
+const submitButton = document.querySelector('#prime-form button[type="submit"]');
+
+async function initPyodide() {
+  const pyodide = await loadPyodide();
+  const response = await fetch("prime.py");
+  const code = await response.text();
+  pyodide.runPython(code);
+  return pyodide;
+}
+
+const pyodideReady = initPyodide().then(function (pyodide) {
+  submitButton.disabled = false;
+  submitButton.textContent = "Check";
+  return pyodide;
+});
+
+document.getElementById("prime-form").addEventListener("submit", async function (e) {
   e.preventDefault();
   const input = document.getElementById("number-input");
   const value = input.value;
@@ -43,10 +42,19 @@ document.getElementById("prime-form").addEventListener("submit", function (e) {
   }
 
   const num = parseInt(value, 10);
-  const divisors = getDivisors(num);
+  const pyodide = await pyodideReady;
+
+  const isPrimeFn = pyodide.globals.get("is_prime");
+  const getDivisorsFn = pyodide.globals.get("get_divisors");
+
+  const primeResult = isPrimeFn(num);
+  const divisorsPy = getDivisorsFn(num);
+  const divisors = divisorsPy.toJs();
+  divisorsPy.destroy();
+
   const divisorInfo = "(약수 " + divisors.length + "개: " + divisors.join(", ") + ")";
 
-  if (isPrime(num)) {
+  if (primeResult) {
     showResult(num + "은(는) 소수입니다.\n" + divisorInfo, "prime");
   } else {
     showResult(num + "은(는) 소수가 아닙니다.\n" + divisorInfo, "not-prime");
