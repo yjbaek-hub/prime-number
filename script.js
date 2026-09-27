@@ -10,6 +10,15 @@ function isInteger(value) {
   return /^-?\d+$/.test(value.trim());
 }
 
+function getDivisors(n) {
+  const abs = Math.abs(n);
+  const divisors = [];
+  for (let i = 1; i <= abs; i++) {
+    if (abs % i === 0) divisors.push(i);
+  }
+  return divisors;
+}
+
 function showResult(message, className) {
   const result = document.getElementById("result");
   result.textContent = message;
@@ -34,10 +43,13 @@ document.getElementById("prime-form").addEventListener("submit", function (e) {
   }
 
   const num = parseInt(value, 10);
+  const divisors = getDivisors(num);
+  const divisorInfo = "(약수 " + divisors.length + "개: " + divisors.join(", ") + ")";
+
   if (isPrime(num)) {
-    showResult(num + "은(는) 소수입니다.", "prime");
+    showResult(num + "은(는) 소수입니다.\n" + divisorInfo, "prime");
   } else {
-    showResult(num + "은(는) 소수가 아닙니다.", "not-prime");
+    showResult(num + "은(는) 소수가 아닙니다.\n" + divisorInfo, "not-prime");
 
     const card = document.querySelector(".card");
     card.classList.remove("shake-vertical");
